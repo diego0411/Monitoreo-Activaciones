@@ -3,18 +3,14 @@ import { ref, onMounted, computed } from 'vue'
 import { supabase } from '../lib/supabaseClient'
 import * as XLSX from 'xlsx'
 
-
-// Estados
 const activaciones = ref([])
 const loading = ref(true)
 const errorMsg = ref(null)
 
-// Filtros
 const filtroPlaza = ref('')
 const filtroImpulsador = ref('')
 const filtroFecha = ref('')
 
-// Cargar datos
 onMounted(async () => {
   const { data, error } = await supabase.from('activaciones').select('*')
   if (error) {
@@ -26,7 +22,6 @@ onMounted(async () => {
   loading.value = false
 })
 
-// Filtro computado
 const activacionesFiltradas = computed(() => {
   return activaciones.value.filter((a) => {
     const plaza = a.plaza?.toLowerCase() || ''
@@ -41,18 +36,29 @@ const activacionesFiltradas = computed(() => {
   })
 })
 
-
 function exportarAExcel() {
-  if (activacionesFiltradas.value.length === 0) {
+  const hayFiltros = filtroPlaza.value || filtroImpulsador.value || filtroFecha.value
+
+  const datosParaExportar = hayFiltros
+    ? activacionesFiltradas.value
+    : activaciones.value
+
+  if (datosParaExportar.length === 0) {
     alert('No hay datos para exportar.')
     return
   }
 
-  // Convertir a formato plano
-  const datosPlano = activacionesFiltradas.value.map((a) => ({
+  const datosPlano = datosParaExportar.map((a) => ({
+    ID: a.id,
     Fecha: a.fecha_activacion,
     Impulsador: a.impulsador,
     Plaza: a.plaza,
+    'Lugar Activación': a.lugar_activacion,
+    'Nombres Cliente': a.nombres_cliente,
+    'Apellidos Cliente': a.apellidos_cliente,
+    'CI Cliente': a.ci_cliente,
+    'Teléfono Cliente': a.telefono_cliente,
+    'Email Cliente': a.email_cliente,
     '¿Descargó App?': a.descargo_app ? 'Sí' : 'No',
     'Registro': a.registro ? 'Sí' : 'No',
     'Cash In': a.cash_in ? 'Sí' : 'No',
@@ -60,52 +66,56 @@ function exportarAExcel() {
     'P2P': a.p2p ? 'Sí' : 'No',
     'QR Físico': a.qr_fisico ? 'Sí' : 'No',
     'Respaldo': a.respaldo ? 'Sí' : 'No',
-    '¿Hubo error?': a.hubo_error ? 'Sí' : 'No',
-    'Descripción del Error': a.descripcion_error ?? '',
-    'Tipo de Activación': a.tipo_activacion,
-    'Tipo de Comercio': a.tipo_comercio,
+    '¿Hubo Error?': a.hubo_error ? 'Sí' : 'No',
+    'Descripción Error': a.descripcion_error ?? '',
+    'Tipo Activación': a.tipo_activacion,
+    'Tipo Comercio': a.tipo_comercio,
     'Tamaño Tienda': a.tamano_tienda,
+    'Foto': a.foto_url
+      ? { f: `HYPERLINK("${a.foto_url}","Ver foto")` }
+      : '',
+    'Latitud': a.latitud,
+    'Longitud': a.longitud,
+    'Usuario ID': a.usuario_id,
+    'Creado': a.created_at,
   }))
 
   const worksheet = XLSX.utils.json_to_sheet(datosPlano)
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Activaciones')
-  XLSX.writeFile(workbook, 'activaciones_filtradas.xlsx')
+  XLSX.writeFile(workbook, 'activaciones.xlsx')
 }
-
 </script>
-
 <template>
-  <div>
+  <div class="activaciones-container">
     <h2>📋 Lista Completa de Activaciones</h2>
 
     <!-- Filtros -->
-    <div style="margin-bottom: 1rem;">
+    <div class="filtros">
       <label>
         📅 Fecha:
         <input type="date" v-model="filtroFecha" />
       </label>
 
-      <label style="margin-left: 1rem;">
+      <label>
         👤 Impulsador:
         <input type="text" v-model="filtroImpulsador" placeholder="Buscar impulsador" />
       </label>
 
-      <label style="margin-left: 1rem;">
+      <label>
         🏙️ Plaza:
         <input type="text" v-model="filtroPlaza" placeholder="Buscar plaza" />
       </label>
     </div>
 
-    <button @click="exportarAExcel" style="margin-bottom: 1rem;">
-  📥 Exportar datos a Excel
-</button>
+    <button @click="exportarAExcel" class="boton-exportar">
+      📥 Exportar datos a Excel
+    </button>
 
-
-    <!-- Tabla -->
     <p v-if="loading">Cargando datos...</p>
-    <p v-else-if="errorMsg" style="color: red;">{{ errorMsg }}</p>
-    <table v-else>
+    <p v-else-if="errorMsg" class="mensaje-error">{{ errorMsg }}</p>
+
+    <table v-else class="tabla-activaciones">
       <thead>
         <tr>
           <th>#</th>
@@ -164,14 +174,9 @@ function exportarAExcel() {
           <td>{{ a.tipo_comercio }}</td>
           <td>{{ a.tamano_tienda }}</td>
           <td>
-            <a v-if="a.foto_url" :href="a.foto_url" target="_blank">📷 Ver</a>
-            <br />
-            <img
-              v-if="a.foto_url"
-              :src="a.foto_url"
-              style="max-width: 80px; max-height: 80px; border-radius: 6px; margin-top: 4px;"
-              alt="Miniatura"
-            />
+            <div class="contenedor-foto" v-if="a.foto_url">
+              <img :src="a.foto_url" alt="Miniatura" class="miniatura-hover" />
+            </div>
           </td>
           <td>{{ a.latitud }}</td>
           <td>{{ a.longitud }}</td>
@@ -182,34 +187,3 @@ function exportarAExcel() {
     </table>
   </div>
 </template>
-
-<style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  margin-top: 1rem;
-}
-th,
-td {
-  border: 1px solid #ccc;
-  padding: 4px;
-  text-align: left;
-  vertical-align: top;
-}
-th {
-  background-color: #f5f5f5;
-}
-tr:nth-child(even) {
-  background-color: #fafafa;
-}
-a {
-  color: #007bff;
-}
-input,
-select {
-  padding: 4px;
-  font-size: 13px;
-  margin-left: 5px;
-}
-</style>

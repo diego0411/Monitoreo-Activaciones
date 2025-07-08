@@ -19,12 +19,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
-    <h2>👤 Lista de Impulsadores Registrados</h2>
+  <div class="contenedor-impulsadores">
+    <h2 class="titulo-principal">👤 Lista de Impulsadores Registrados</h2>
 
     <p v-if="loading">Cargando...</p>
-    <p v-else-if="errorMsg" style="color: red;">{{ errorMsg }}</p>
-    <table v-else>
+    <p v-else-if="errorMsg" class="mensaje-error">{{ errorMsg }}</p>
+
+    <table v-else class="tabla-impulsadores">
       <thead>
         <tr>
           <th>#</th>
@@ -44,23 +45,3 @@ onMounted(async () => {
     </table>
   </div>
 </template>
-
-<style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  margin-top: 1rem;
-}
-th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: left;
-}
-th {
-  background-color: #f4f4f4;
-}
-tr:nth-child(even) {
-  background-color: #fafafa;
-}
-</style>

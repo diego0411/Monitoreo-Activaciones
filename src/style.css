@@ -3,24 +3,35 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #6802AA;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --color-primary: #FF6D00;
+  --color-success: #00E676;
+  --color-danger: #FF3D00;
+  --color-muted: #F8F9FA;
+  --color-text: #FFFFFF;
+  --color-background: #6802AA;
+  --color-input-border: #2D0149;
+
+  --spacing-xs: 6px;
+  --spacing-sm: 10px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  --font-small: 14px;
+  --font-medium: 16px;
+  --font-large: 20px;
+  --font-xlarge: 26px;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+/* =================== GLOBAL =================== */
 
 body {
   margin: 0;
@@ -28,27 +39,43 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+h1, h2 {
+  font-size: var(--font-xlarge);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
+}
+
+a {
+  font-weight: 500;
+  color: #FFB74D;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #FF9100;
 }
 
 button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
-  font-size: 1em;
+  font-size: var(--font-medium);
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  color: white;
 }
+
 button:hover {
-  border-color: #646cff;
+  border-color: var(--color-primary);
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -59,21 +86,376 @@ button:focus-visible {
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  padding: var(--spacing-lg);
+  box-sizing: border-box;
 }
+
+/* =================== CONTENEDORES =================== */
+
+.activaciones-container,
+.contenedor-impulsadores,
+.contenedor-usuarios,
+.contenedor-metricas {
+  max-width: 95%;
+  margin: auto;
+  padding: var(--spacing-lg);
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+/* =================== FILTROS =================== */
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.filtros label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--color-text);
+}
+
+.input-texto {
+  padding: 6px;
+  font-size: var(--font-small);
+  border: 1px solid var(--color-input-border);
+  border-radius: 6px;
+  min-width: 160px;
+  background-color: white;
+  color: black;
+}
+
+/* =================== TABLAS =================== */
+
+/* Tabla general */
+.tabla-activaciones {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-small);
+}
+
+/* Encabezado oscuro con bordes */
+.tabla-activaciones th {
+  background-color: #2D0149;
+  color: white;
+  padding: 6px;
+  border: 1px solid #ccc;
+  text-align: left;
+  vertical-align: top;
+}
+
+/* Primera columna también oscura */
+.tabla-activaciones td:first-child {
+  background-color: #2D0149;
+  color: white;
+  font-weight: bold;
+  border: 1px solid #ccc;
+}
+
+/* Celdas normales (fondo uniforme claro) */
+.tabla-activaciones td {
+  background-color: #6a0dad; /* O usa var(--color-background) */
+  color: white;
+  padding: 6px;
+  border: 1px solid #ccc;
+  text-align: left;
+  vertical-align: top;
+}
+
+/* Eliminar rayado alterno */
+.tabla-activaciones tr:nth-child(even) {
+  background-color: transparent;
+}
+
+/* =================== ERRORES =================== */
+
+.mensaje-error {
+  color: var(--color-danger);
+  font-weight: bold;
+}
+
+/* =================== EXPORTAR =================== */
+
+.boton-exportar {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: var(--spacing-md);
+}
+
+/* =================== USUARIOS =================== */
+
+.formulario-registro {
+  border: 1px solid var(--color-input-border);
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: var(--spacing-lg);
+}
+
+.formulario-campos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.input-editar {
+  padding: 4px;
+  font-size: var(--font-small);
+  border: 1px solid var(--color-input-border);
+  border-radius: 6px;
+}
+
+.boton {
+  font-size: var(--font-small);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.boton-primario { background-color: var(--color-primary); color: white; }
+.boton-editar   { background-color: #fbc02d; color: white; }
+.boton-eliminar { background-color: #d32f2f; color: white; }
+.boton-guardar  { background-color: #388e3c; color: white; }
+.boton-cancelar { background-color: #9e9e9e; color: white; }
+
+.acciones {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+/* =================== MÉTRICAS =================== */
+
+.barra-metrica {
+  margin-bottom: var(--spacing-sm);
+}
+
+.barra-base {
+  background-color: #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  height: 24px;
+  margin-top: 4px;
+}
+
+.barra-progreso {
+  background-color: var(--color-success);
+  height: 100%;
+  color: white;
+  font-weight: bold;
+  padding-left: 10px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  transition: width 0.3s ease;
+}
+
+/* =================== MINIATURA =================== */
+
+.miniatura-foto {
+  max-width: 80px;
+  max-height: 80px;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+/* =================== MODO CLARO =================== */
 
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
   }
-  a:hover {
-    color: #747bff;
+
+  body {
+    background-color: #ffffff;
+    color: #213547;
   }
-  button {
+
+  th {
+    background-color: #f0f0f0;
+    color: #213547;
+  }
+
+  tr:nth-child(even) {
     background-color: #f9f9f9;
   }
+
+  .boton-exportar {
+    background-color: #FF6D00;
+  }
+
+  .mensaje-error {
+    color: #d32f2f;
+  }
+}
+/* =================== CONTENEDOR IMPULSADORES =================== */
+.contenedor-impulsadores {
+  max-width: 95%;
+  margin: auto;
+  padding: var(--spacing-lg);
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+.tabla-impulsadores {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-small);
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+.tabla-impulsadores th {
+  background-color: #2d0149;
+  color: white;
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: left;
+}
+
+.tabla-impulsadores td {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: left;
+}
+
+/* Numeración (columna #) con fondo oscuro */
+.tabla-impulsadores td:first-child {
+  background-color: #2d0149;
+  color: white;
+}
+
+.mensaje-error {
+  color: var(--color-danger);
+  font-weight: bold;
+}
+
+.titulo-principal {
+  font-size: var(--font-xlarge);
+  margin-bottom: var(--spacing-md);
+}
+/* =================== CONTENEDOR USUARIOS LISTA =================== */
+.contenedor-usuarios {
+  max-width: 95%;
+  margin: auto;
+  padding: var(--spacing-lg);
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+.tabla-usuarios {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-small);
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+/* Estilo encabezado */
+.tabla-usuarios th {
+  background-color: #2d0149;
+  color: white;
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: left;
+}
+
+/* Estilo celdas normales */
+.tabla-usuarios td {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border: 1px solid #ccc;
+  padding: 6px;
+  text-align: left;
+}
+
+/* Primera columna (ID) con fondo oscuro */
+.tabla-usuarios td:first-child {
+  background-color: #2d0149;
+  color: white;
+}
+
+/* Estilo inputs de edición */
+.input-editar {
+  padding: 4px;
+  font-size: var(--font-small);
+  border: 1px solid var(--color-input-border);
+  border-radius: 6px;
+}
+
+/* Acciones de edición y botones */
+.acciones {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+
+.encabezado-global {
+  background-color: #6802AA;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  flex-wrap: wrap;
+}
+
+.logo-global {
+  height: 50px;
+  margin-bottom: 0.5rem;
+}
+
+.navbar {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.navbar a {
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.2s ease;
+}
+
+.navbar a:hover {
+  color: var(--color-primary);
+}
+/* =================== ZOOM HOVER EN MINIATURAS =================== */
+
+.contenedor-foto {
+  position: relative;
+  display: inline-block;
+}
+
+.miniatura-hover {
+  width: 50px;
+  height: auto;
+  border-radius: 10px;
+  transition: transform 0.3s ease-in-out;
+  cursor: zoom-in;
+  z-index: 1;
+}
+
+.contenedor-foto:hover .miniatura-hover {
+  position: absolute;
+  transform: scale(7);
+  z-index: 999;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  background-color: white;
 }
