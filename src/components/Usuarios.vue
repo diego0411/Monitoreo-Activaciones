@@ -25,10 +25,9 @@ const cargarUsuarios = async () => {
   }
   usuarios.value = data ?? []
 }
-
 onMounted(cargarUsuarios)
 
-// Registrar usuario: crea en Auth ya CONFIRMADO y upsert en 'activadores'
+// Registrar usuario: crea en Auth CONFIRMADO y upsert en 'activadores'
 const registrarUsuario = async () => {
   if (!email.value || !password.value || !nombre.value) {
     alert('Completa todos los campos')
@@ -41,7 +40,7 @@ const registrarUsuario = async () => {
   const { data: created, error: createErr } = await adminSupabase.auth.admin.createUser({
     email: cleanedEmail,
     password: password.value,
-    email_confirm: true,
+    email_confirm: true, // ✅ confirma al crearlo
     user_metadata: { nombre: nombre.value, plaza: plaza.value || null }
   })
   if (createErr) {
@@ -104,9 +103,11 @@ const editarUsuario = (usuario) => {
 const guardarEdicion = async () => {
   if (!editandoId.value) return
 
-  // 1) Actualizar metadata en Auth
+  // 1) Actualizar metadata en Auth (si quieres confirmar aquí, añade email_confirm: true)
   const { error: updAuthErr } = await adminSupabase.auth.admin.updateUserById(editandoId.value, {
     user_metadata: { nombre: nombreEdit.value, plaza: plazaEdit.value }
+    // Puedes forzar confirmación aquí si hace falta:
+    // , email_confirm: true
   })
   if (updAuthErr) {
     alert(updAuthErr.message)
@@ -133,7 +134,7 @@ const guardarEdicion = async () => {
 // (Opcional) Confirmar un usuario antiguo con un clic
 const confirmarUsuario = async (usuario) => {
   const { error } = await adminSupabase.auth.admin.updateUserById(usuario.usuario_id, {
-    email_confirmed: true
+    email_confirm: true // ✅ propiedad correcta
   })
   if (error) {
     alert(error.message)
