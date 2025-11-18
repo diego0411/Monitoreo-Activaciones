@@ -11,15 +11,52 @@ const filtroPlaza = ref('')
 const filtroImpulsador = ref('')
 const filtroFecha = ref('')
 
+// Cargar TODAS las activaciones con paginación
 onMounted(async () => {
-  const { data, error } = await supabase.from('activaciones').select('*')
-  if (error) {
-    console.error('❌ Error al cargar datos:', error)
-    errorMsg.value = 'Error al obtener activaciones.'
-  } else {
-    activaciones.value = data
+  loading.value = true
+  errorMsg.value = null
+
+  const pageSize = 1000
+  let from = 0
+  let to = pageSize - 1
+  const todas = []
+
+  try {
+    while (true) {
+      const { data, error } = await supabase
+        .from('activaciones')
+        .select('*')
+        .range(from, to)
+
+      if (error) {
+        console.error('❌ Error al cargar datos:', error)
+        errorMsg.value = 'Error al obtener activaciones.'
+        break
+      }
+
+      if (!data || data.length === 0) {
+        break
+      }
+
+      todas.push(...data)
+
+      // Si trae menos que el tamaño de página, ya no hay más registros
+      if (data.length < pageSize) {
+        break
+      }
+
+      from += pageSize
+      to += pageSize
+    }
+
+    activaciones.value = todas
+    console.log('✅ Activaciones cargadas:', activaciones.value.length)
+  } catch (e) {
+    console.error('❌ Error inesperado al cargar activaciones:', e)
+    errorMsg.value = 'Error inesperado al obtener activaciones.'
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 })
 
 const activacionesFiltradas = computed(() => {
@@ -28,16 +65,21 @@ const activacionesFiltradas = computed(() => {
     const impulsador = a.impulsador?.toLowerCase() || ''
     const fecha = a.fecha_activacion || ''
 
-    const coincidePlaza = !filtroPlaza.value || plaza.includes(filtroPlaza.value.toLowerCase())
-    const coincideImpulsador = !filtroImpulsador.value || impulsador.includes(filtroImpulsador.value.toLowerCase())
-    const coincideFecha = !filtroFecha.value || fecha === filtroFecha.value
+    const coincidePlaza =
+      !filtroPlaza.value || plaza.includes(filtroPlaza.value.toLowerCase())
+    const coincideImpulsador =
+      !filtroImpulsador.value ||
+      impulsador.includes(filtroImpulsador.value.toLowerCase())
+    const coincideFecha =
+      !filtroFecha.value || fecha === filtroFecha.value
 
     return coincidePlaza && coincideImpulsador && coincideFecha
   })
 })
 
 function exportarAExcel() {
-  const hayFiltros = filtroPlaza.value || filtroImpulsador.value || filtroFecha.value
+  const hayFiltros =
+    filtroPlaza.value || filtroImpulsador.value || filtroFecha.value
 
   const datosParaExportar = hayFiltros
     ? activacionesFiltradas.value
@@ -48,7 +90,10 @@ function exportarAExcel() {
     return
   }
 
-  const datosPlano = datosParaExportar.map((a) => ({
+  console.log('📤 Filas que se exportan:', datosParaExportar.length)
+
+  const datosPlano = datosParaExportar.map((a, index) => ({
+    '#': index + 1,
     ID: a.id,
     Fecha: a.fecha_activacion,
     Impulsador: a.impulsador,
@@ -60,24 +105,24 @@ function exportarAExcel() {
     'Teléfono Cliente': a.telefono_cliente,
     'Email Cliente': a.email_cliente,
     '¿Descargó App?': a.descargo_app ? 'Sí' : 'No',
-    'Registro': a.registro ? 'Sí' : 'No',
+    Registro: a.registro ? 'Sí' : 'No',
     'Cash In': a.cash_in ? 'Sí' : 'No',
     'Cash Out': a.cash_out ? 'Sí' : 'No',
-    'P2P': a.p2p ? 'Sí' : 'No',
+    P2P: a.p2p ? 'Sí' : 'No',
     'QR Físico': a.qr_fisico ? 'Sí' : 'No',
-    'Respaldo': a.respaldo ? 'Sí' : 'No',
+    Respaldo: a.respaldo ? 'Sí' : 'No',
     '¿Hubo Error?': a.hubo_error ? 'Sí' : 'No',
     'Descripción Error': a.descripcion_error ?? '',
     'Tipo Activación': a.tipo_activacion,
     'Tipo Comercio': a.tipo_comercio,
     'Tamaño Tienda': a.tamano_tienda,
-    'Foto': a.foto_url
+    Foto: a.foto_url
       ? { f: `HYPERLINK("${a.foto_url}","Ver foto")` }
       : '',
-    'Latitud': a.latitud,
-    'Longitud': a.longitud,
+    Latitud: a.latitud,
+    Longitud: a.longitud,
     'Usuario ID': a.usuario_id,
-    'Creado': a.created_at,
+    Creado: a.created_at,
   }))
 
   const worksheet = XLSX.utils.json_to_sheet(datosPlano)
@@ -86,6 +131,7 @@ function exportarAExcel() {
   XLSX.writeFile(workbook, 'activaciones.xlsx')
 }
 </script>
+
 <template>
   <div class="activaciones-container">
     <h2>📋 Lista Completa de Activaciones</h2>
@@ -99,12 +145,20 @@ function exportarAExcel() {
 
       <label>
         👤 Impulsador:
-        <input type="text" v-model="filtroImpulsador" placeholder="Buscar impulsador" />
+        <input
+          type="text"
+          v-model="filtroImpulsador"
+          placeholder="Buscar impulsador"
+        />
       </label>
 
       <label>
         🏙️ Plaza:
-        <input type="text" v-model="filtroPlaza" placeholder="Buscar plaza" />
+        <input
+          type="text"
+          v-model="filtroPlaza"
+          placeholder="Buscar plaza"
+        />
       </label>
     </div>
 
@@ -113,7 +167,9 @@ function exportarAExcel() {
     </button>
 
     <p v-if="loading">Cargando datos...</p>
-    <p v-else-if="errorMsg" class="mensaje-error">{{ errorMsg }}</p>
+    <p v-else-if="errorMsg" class="mensaje-error">
+      {{ errorMsg }}
+    </p>
 
     <table v-else class="tabla-activaciones">
       <thead>
@@ -175,7 +231,11 @@ function exportarAExcel() {
           <td>{{ a.tamano_tienda }}</td>
           <td>
             <div class="contenedor-foto" v-if="a.foto_url">
-              <img :src="a.foto_url" alt="Miniatura" class="miniatura-hover" />
+              <img
+                :src="a.foto_url"
+                alt="Miniatura"
+                class="miniatura-hover"
+              />
             </div>
           </td>
           <td>{{ a.latitud }}</td>
